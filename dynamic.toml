@@ -2,3 +2,27 @@
   [http.middlewares.redirect.redirectScheme]
     scheme = "https"
     permanent = true
+
+
+[http.routers]
+  [http.routers.balancer-router-web]
+    rule = "Host(`jhune.space`)"
+    service = "load-balancer"
+    entrypoints = ["web"]
+    middlewares = ["redirect"]
+
+  [http.routers.balancer-router-websecure]
+    rule = "Host(`jhune.space`)"
+    service = "load-balancer"
+    entrypoints = ["websecure"]
+
+    [http.routers.balancer-router-websecure.tls]
+      certResolver = "myresolver"
+
+
+[http.services]
+  [http.services.load-balancer.loadBalancer]
+    [[http.services.load-balancer.loadBalancer.servers]]
+      url = "http://node-app-1:3000"
+    [[http.services.load-balancer.loadBalancer.servers]]
+      url = "http://node-app-2:3001"
