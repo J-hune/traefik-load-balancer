@@ -1,0 +1,55 @@
+.container {
+    position: absolute;
+    left: 0;
+    top: 0;
+}
+
+.bg-gradient {
+    background-image: radial-gradient(at 72% 88%, #e057ff 0, transparent 50%), radial-gradient(at 30% 80%, #5c5cff 0, transparent 50%), radial-gradient(at 98% 8%, #7587ff 0, transparent 50%), radial-gradient(at 9% 13%, #f07aff 0, transparent 50%);
+}
+
+.background-noisy {
+    background: url(../img/background_noisy.webp);
+    width: 100vw;
+    height: 100%;
+}
+
+.center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    height: 100vh;
+}
+
+.app-name {
+    font-size: 8rem;
+    line-height: 1;
+    color: white;
+    font-weight: 700;
+    font-family: Circular, serif;
+}
+
+@font-face {
+    font-family: Circular;
+    src: url("../fonts/CircularStd-Medium.woff");
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: Circular;
+    src: url("../fonts/CircularStd-Black.woff");
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: Circular;
+    src: url("../fonts/CircularStd-Bold.woff");
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
