@@ -9,8 +9,10 @@ app.use((req, res, next) => {
   next();
 });
 
+app.use(express.static('public'))
+
 app.get('/', (req, res) => {
-  res.send("Welcome to Node.js Application 1");
+  res.sendFile('views/index.html', { root: __dirname });
 });
 
 app.listen(port, () => {
