@@ -23,7 +23,7 @@ services:
       - --api.debug=true # Enable API debugging
 
       # Log Settings
-      - --log.level=INFO # Set log level to INFO
+      - --log.level=$LOG_LEVEL # Set log level to INFO
 
       # Provider Settings
       - --providers.docker=true # Enable Docker provider
