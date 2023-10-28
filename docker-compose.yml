@@ -2,11 +2,11 @@ version: '3.7'
 
 services:
 
-# =============================================================
-#
-#	 TRAEFIK - Reverse proxy
-#
-# =============================================================
+  # =============================================================
+  #
+  #	 TRAEFIK - Reverse proxy
+  #
+  # =============================================================
 
   traefik:
     image: traefik:v2.10.5
@@ -23,7 +23,7 @@ services:
       - --api.debug=true # Enable API debugging
 
       # Log Settings
-      - --log.level=DEBUG # Set log level to DEBUG
+      - --log.level=INFO # Set log level to INFO
 
       # Provider Settings
       - --providers.docker=true # Enable Docker provider
@@ -44,54 +44,88 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock # Volume for Docker administration
       - ./dynamic.toml:/dynamic.toml # Volume for dynamic configuration file **ref: line 31
     labels:
-      - "traefik.enable=true" # Enable Traefik for this container
-      - "traefik.http.routers.traefik.rule=Host(`localhost`)" # Define a rule for the Traefik router
-      - "traefik.http.routers.traefik.service=api@internal" # Service name for the Traefik router
+      traefik.enable: "true" # Enable Traefik for this container
+      traefik.http.routers.traefik.rule: "Host(`localhost`)" # Define a rule for the Traefik router
+      traefik.http.routers.traefik.service: "api@internal" # Service name for the Traefik router
+    
+      # Middleware to redirect HTTP to HTTPS
+      traefik.http.middlewares.redirect.redirectscheme.scheme: "https" # Define a middleware to redirect HTTP to HTTPS
+    
     networks:
       - proxy
 
-# =============================================================
-#
-#	 APP NODE 1 (WEBSITE PORT 3000)
-#
-# =============================================================
+  # =============================================================
+  #
+  #	 APP NODE 1 (WEBSITE PORT 3000)
+  #
+  # =============================================================
 
   node-app-1:
     build: ./node-app-1 # Build the Docker image from the specified directory
     container_name: node-app-1
+    environment:
+        - DOMAIN_NAME=$DOMAIN_NAME
     labels:
-      - "traefik.enable=true" # Enable Traefik for this container
-      - "traefik.http.routers.app1-web.rule=Host(`app1.${DOMAIN_NAME}`)" # Define a rule for the Traefik router (HTTP only)
-      - "traefik.http.routers.app1-web.entrypoints=web" # Use the 'web' entry point
-      - "traefik.http.routers.app1-web.middlewares=redirect@file" # Apply a middleware to redirect to HTTPS
+      traefik.enable: "true" # Enable Traefik for this container
+      traefik.http.routers.app1-web.rule: "Host(`app1.${DOMAIN_NAME}`)" # Define a rule for the Traefik router (HTTP only)
+      traefik.http.routers.app1-web.entrypoints: "web" # Use the 'web' entry point
+      traefik.http.routers.app1-web.middlewares: "redirect" # Apply a middleware to redirect to HTTPS
 
-      - "traefik.http.routers.app1-secured.rule=Host(`app1.jhune.space`)" # Define a rule for the secured router (HTTPS)
-      - "traefik.http.routers.app1-secured.entrypoints=websecure" # Use the 'websecure' entry point
-      - "traefik.http.routers.app1-secured.tls.certresolver=myresolver" # Use the 'myresolver' for TLS
+      traefik.http.routers.app1-secured.rule: "Host(`app1.${DOMAIN_NAME}`)" # Define a rule for the secured router (HTTPS)
+      traefik.http.routers.app1-secured.entrypoints: "websecure" # Use the 'websecure' entry point
+      traefik.http.routers.app1-secured.tls.certresolver: "myresolver" # Use 'myresolver' for TLS
     networks:
       - proxy
 
-# =============================================================
-#
-#	 APP NODE 2 (WEBSITE PORT 3001)
-#
-# =============================================================
+  # =============================================================
+  #
+  #	 APP NODE 2 (WEBSITE PORT 3001)
+  #
+  # =============================================================
 
   node-app-2:
     build: ./node-app-2 # Build the Docker image from the specified directory
     container_name: node-app-2
+    environment:
+      - DOMAIN_NAME=$DOMAIN_NAME
     labels:
-      - "traefik.enable=true" # Enable Traefik for this container
-      - "traefik.http.routers.app2-web.rule=Host(`app2.${DOMAIN_NAME}`)" # Define a rule for the Traefik router (HTTP only)
-      - "traefik.http.routers.app2-web.entrypoints=web" # Use the 'web' entry point
-      - "traefik.http.routers.app2-web.middlewares=redirect@file" # Apply a middleware to redirect to HTTPS
+      traefik.enable: "true" # Enable Traefik for this container
+      traefik.http.routers.app2-web.rule: "Host(`app2.${DOMAIN_NAME}`)" # Define a rule for the Traefik router (HTTP only)
+      traefik.http.routers.app2-web.entrypoints: "web" # Use the 'web' entry point
+      traefik.http.routers.app2-web.middlewares: "redirect" # Apply a middleware to redirect to HTTPS
 
-      - "traefik.http.routers.app2-secured.rule=Host(`app2.jhune.space`)" # Define a rule for the secured router (HTTPS)
-      - "traefik.http.routers.app2-secured.entrypoints=websecure" # Use the 'websecure' entry point
-      - "traefik.http.routers.app2-secured.tls.certresolver=myresolver" # Use the 'myresolver' for TLS
+      traefik.http.routers.app2-secured.rule: "Host(`app2.${DOMAIN_NAME}`)" # Define a rule for the secured router (HTTPS)
+      traefik.http.routers.app2-secured.entrypoints: "websecure" # Use the 'websecure' entry point
+      traefik.http.routers.app2-secured.tls.certresolver: "myresolver" # Use 'myresolver' for TLS
     networks:
       - proxy
 
+
+  # =============================================================
+  #
+  #	 LOAD BALANCER
+  #
+  # =============================================================
+
+  load-balancer:
+    image: traefik:v2.10.5
+    container_name: load-balancer
+    labels:
+      traefik.enable: "true"
+
+      # Router for Load Balancer
+      traefik.http.routers.balancer-router-web.rule: "Host(`${DOMAIN_NAME}`)" # Define a rule for the Traefik router (HTTP only)
+      traefik.http.routers.balancer-router-web.service: "load-balancer@file" # Create a service for the router
+      traefik.http.routers.balancer-router-web.entrypoints: "web" # Use the 'web' entry point
+      traefik.http.routers.balancer-router-web.middlewares: "redirect" # Apply a middleware to redirect to HTTPS
+
+      traefik.http.routers.balancer-router-websecure.rule: "Host(`${DOMAIN_NAME}`)" # Define a rule for the secured router (HTTPS)
+      traefik.http.routers.balancer-router-websecure.service: "load-balancer@file" # Create a service for the router
+      traefik.http.routers.balancer-router-websecure.entrypoints: "websecure" # Use the 'websecure' entry point
+      traefik.http.routers.balancer-router-websecure.tls.certresolver: "myresolver" # Use 'myresolver' for TLS
+
+    networks:
+      - proxy
 
 networks:
   proxy:
