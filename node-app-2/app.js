@@ -18,6 +18,10 @@ app.get('/', (req, res) => {
   res.render(__dirname + '/views/index.html', { root: __dirname, domainUrl:domainUrl });
 });
 
+app.get('/health', (req, res) => {
+  res.send('Heyy, I am healthy!');
+});
+
 app.listen(port, () => {
   console.log(`Node.js Application 2 is listening on port ${port}`);
 });

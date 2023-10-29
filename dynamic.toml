@@ -4,3 +4,7 @@
       url = "http://node-app-1:3000"
     [[http.services.load-balancer.loadBalancer.servers]]
       url = "http://node-app-2:3001"
+    [http.services.load-balancer.loadBalancer.healthCheck]
+      scheme = "HTTP"
+      interval = "2s"
+      path = "/health"
