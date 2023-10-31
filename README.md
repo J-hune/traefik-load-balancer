@@ -37,19 +37,13 @@ Before getting started, make sure you have the following dependencies installed:
    - `ACME_EMAIL`: Provide your email for Let's Encrypt certificate registration.
    - `LOG_LEVEL`: (Optional) Set the log level (e.g., INFO, DEBUG).
 
-5. Modify the permissions of the `acme.json` file:
-
-   ```bash
-   chmod 600 ./letsencrypt/acme.json
-   ```
-
-6. Start the project using Docker Compose:
+5. Start the project using Docker Compose:
 
    ```bash
    docker compose up -d
    ```
 
-7. The project will now be running, and Traefik will handle routing, load balancing, and health checks for your applications.
+6. The project will now be running, and Traefik will handle routing, load balancing, and health checks for your applications.
 
 ## Accessing the Applications
 
